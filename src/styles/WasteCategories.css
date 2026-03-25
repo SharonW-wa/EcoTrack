@@ -1,0 +1,18 @@
+.categoryBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+}
+
+.categoryBadge--wc1 { background-color: #FF6B6B20; }
+.categoryBadge--wc2 { background-color: #4ECDC420; }
+.categoryBadge--wc3 { background-color: #95E1D320; }
+.categoryBadge--wc4 { background-color: #F7DC6F20; }
+.categoryBadge--wc5 { background-color: #82E0AA20; }
+
+.categoryHeader--wc1 { background-color: #FF6B6B; }
+.categoryHeader--wc2 { background-color: #4ECDC4; }
+.categoryHeader--wc3 { background-color: #95E1D3; }
+.categoryHeader--wc4 { background-color: #F7DC6F; }
+.categoryHeader--wc5 { background-color: #82E0AA; }

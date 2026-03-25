@@ -1,0 +1,56 @@
+[
+  {
+    "id": "5990afa7-23f8-48f5-b0e3-24c2e96487f8",
+    "userId": "6ddaec3e-0b25-4347-9448-e649190c393e",
+    "activityId": "8931a92a-29f8-478c-b825-e435542fabf4",
+    "points": 3,
+    "type": "earned",
+    "description": "Recycled 0.3kg of glass",
+    "createdAt": "2026-03-17T11:02:48.311Z"
+  },
+  {
+    "id": "5ab34257-496d-4a7b-8ce6-d6c649bc3075",
+    "userId": "6ddaec3e-0b25-4347-9448-e649190c393e",
+    "activityId": "6ec41bbf-a2d0-497e-a301-6e68254c7fbb",
+    "points": 2,
+    "type": "earned",
+    "description": "Recycled 0.2kg of glass",
+    "createdAt": "2026-03-17T11:11:52.056Z"
+  },
+  {
+    "id": "7e9a38fb-59c4-4736-bdb7-efc54ea34b6b",
+    "userId": "6ddaec3e-0b25-4347-9448-e649190c393e",
+    "activityId": "1d36a847-4b5a-400f-bb38-a5368e2c56ff",
+    "points": 3,
+    "type": "earned",
+    "description": "Recycled 0.3kg of metal",
+    "createdAt": "2026-03-17T11:20:17.664Z"
+  },
+  {
+    "id": "1bc068ae-efb7-4632-b98d-5fb0bfab5b25",
+    "userId": "61e92954-4ac2-4ff8-a8bc-59901cabd727",
+    "activityId": "a2d64dfa-6a97-4015-8e95-85991fd43a45",
+    "points": 3,
+    "type": "earned",
+    "description": "Recycled 0.3kg of metal",
+    "createdAt": "2026-03-18T16:37:17.630Z"
+  },
+  {
+    "id": "97e896a3-6d6c-4736-8101-96d21dfea8d0",
+    "userId": "0e9256b2-00ec-4337-be0f-77a449615e6f",
+    "activityId": "61a15bc5-e73d-4799-8959-4bf2681dd7b3",
+    "points": 5,
+    "type": "earned",
+    "description": "Recycled 0.5kg of glass",
+    "createdAt": "2026-03-24T12:24:57.000Z"
+  },
+  {
+    "id": "1cf35e23-97e9-4701-a510-bac820f45d80",
+    "userId": "0e9256b2-00ec-4337-be0f-77a449615e6f",
+    "activityId": "a8a3e11c-ff40-4ce4-b92e-afa7f8207bac",
+    "points": 3,
+    "type": "earned",
+    "description": "Recycled 0.3kg of metal",
+    "createdAt": "2026-03-24T12:25:12.641Z"
+  }
+]

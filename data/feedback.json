@@ -1,0 +1,29 @@
+[
+  {
+    "id": "4af30c23-9498-4331-9632-8a336dc1330b",
+    "userId": "6ddaec3e-0b25-4347-9448-e649190c393e",
+    "userName": "Sharon Wanjiku",
+    "type": "suggestion",
+    "message": "payment services improval",
+    "rating": 4,
+    "createdAt": "2026-03-17T11:03:19.884Z"
+  },
+  {
+    "id": "07b38ac0-5b2e-4367-bb3c-980b13cfc09d",
+    "userId": "6ddaec3e-0b25-4347-9448-e649190c393e",
+    "userName": "Sharon Wanjiku",
+    "type": "compliment",
+    "message": "Good Services",
+    "rating": 5,
+    "createdAt": "2026-03-17T13:21:43.324Z"
+  },
+  {
+    "id": "78127c7b-bb38-45fc-9116-4ee48cd9335a",
+    "userId": "61e92954-4ac2-4ff8-a8bc-59901cabd727",
+    "userName": "Anne Nduta",
+    "type": "compliment",
+    "message": "Good job!!",
+    "rating": 5,
+    "createdAt": "2026-03-18T05:17:32.675Z"
+  }
+]

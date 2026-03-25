@@ -1,0 +1,86 @@
+[
+  {
+    "id": "wc1",
+    "name": "Plastic",
+    "icon": "♳",
+    "color": "#FF6B6B",
+    "description": "Plastic bottles, containers, bags, and packaging materials",
+    "examples": [
+      "Water bottles",
+      "Food containers",
+      "Shopping bags",
+      "Plastic cups",
+      "Packaging foam"
+    ],
+    "disposalInstructions": "Rinse containers, remove caps, flatten bottles to save space",
+    "recyclable": true,
+    "environmentalImpact": "Takes 450+ years to decompose, harms marine life"
+  },
+  {
+    "id": "wc2",
+    "name": "Paper",
+    "icon": "📄",
+    "color": "#4ECDC4",
+    "description": "Newspapers, magazines, cardboard, and office paper",
+    "examples": [
+      "Newspapers",
+      "Cardboard boxes",
+      "Office paper",
+      "Magazines",
+      "Paper bags"
+    ],
+    "disposalInstructions": "Keep dry, flatten cardboard boxes, remove plastic windows",
+    "recyclable": true,
+    "environmentalImpact": "Recycling 1 ton saves 17 trees and 7,000 gallons of water"
+  },
+  {
+    "id": "wc3",
+    "name": "Glass",
+    "icon": "🍾",
+    "color": "#95E1D3",
+    "description": "Glass bottles, jars, and containers",
+    "examples": [
+      "Wine bottles",
+      "Food jars",
+      "Glass containers",
+      "Drinking glasses"
+    ],
+    "disposalInstructions": "Rinse thoroughly, remove lids and caps, sort by color if required",
+    "recyclable": true,
+    "environmentalImpact": "Infinitely recyclable without quality loss"
+  },
+  {
+    "id": "wc4",
+    "name": "Metal",
+    "icon": "🔧",
+    "color": "#F7DC6F",
+    "description": "Aluminum cans, steel containers, and scrap metal",
+    "examples": [
+      "Soda cans",
+      "Food cans",
+      "Aluminum foil",
+      "Metal lids",
+      "Scrap metal"
+    ],
+    "disposalInstructions": "Rinse cans, remove labels if possible, crush to save space",
+    "recyclable": true,
+    "environmentalImpact": "Recycling aluminum saves 95% of energy vs. new production"
+  },
+  {
+    "id": "wc5",
+    "name": "Organic",
+    "icon": "🍃",
+    "color": "#82E0AA",
+    "description": "Food waste, yard waste, and compostable materials",
+    "examples": [
+      "Fruit peels",
+      "Vegetable scraps",
+      "Coffee grounds",
+      "Eggshells",
+      "Yard trimmings"
+    ],
+    "disposalInstructions": "Compost when possible, separate from other waste",
+    "recyclable": true,
+    "environmentalImpact": "Composting reduces methane emissions from landfills"
+  }
+]

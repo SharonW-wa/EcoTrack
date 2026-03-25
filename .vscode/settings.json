@@ -1,0 +1,13 @@
+{
+  "css.validate": false,
+  "css.lint": false,
+  "stylelint.enable": false,
+  "css.compatibilityCheck": "off",
+  "[css]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "files.exclude": {
+    "**/node_modules": true,
+    "**/.git": true
+  }
+}
