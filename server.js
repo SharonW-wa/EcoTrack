@@ -720,12 +720,12 @@ app.get('/api/health', (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`=================================`);
   console.log(`Waste Management System Server`);
   console.log(`=================================`);
   console.log(`Server running on port ${PORT}`);
-  console.log(`API Base URL: http://localhost:${PORT}/api`);
+  console.log(`API Base URL: http://0.0.0.0:${PORT}/api`);
   console.log(`Data directory: ${DATA_DIR}`);
   console.log(`=================================`);
 });
