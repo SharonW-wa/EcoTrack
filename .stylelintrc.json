@@ -1,0 +1,14 @@
+{
+  "rules": {
+    "property-no-vendor-prefix": null,
+    "value-no-vendor-prefix": null,
+    "declaration-no-important": null,
+    "selector-pseudo-element-no-unknown": null,
+    "no-descending-specificity": null,
+    "declaration-block-no-duplicate-properties": null,
+    "unit-no-unknown": null,
+    "property-no-unknown": [true, {
+      "ignoreProperties": ["composes"]
+    }]
+  }
+}

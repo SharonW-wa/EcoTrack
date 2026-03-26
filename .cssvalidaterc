@@ -1,0 +1,4 @@
+{
+  "ignore": ["dist/**/*.css"],
+  "maxWarnings": -1
+}
