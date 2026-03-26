@@ -59,6 +59,12 @@ const defaultCenters = [
   }
 ];
 
+function setCORS(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
+
 function readDB(file) {
   try {
     const data = fs.readFileSync(file, 'utf8');
@@ -69,6 +75,11 @@ function readDB(file) {
 }
 
 export default function handler(req, res) {
+  setCORS(res);
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
+
   if (req.method === 'GET') {
     try {
       const centers = readDB(path.join(process.cwd(), 'data', 'recycling-centers.json'));

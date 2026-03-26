@@ -6,6 +6,12 @@ const path = require('path');
 
 const JWT_SECRET = process.env.JWT_SECRET || 'waste-management-secret-key-2024';
 
+function setCORS(res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+}
+
 function readDB(file) {
   try {
     const data = fs.readFileSync(file, 'utf8');
@@ -20,6 +26,10 @@ function writeDB(file, data) {
 }
 
 export default async function handler(req, res) {
+  setCORS(res);
+  if (req.method === 'OPTIONS') {
+    return res.status(204).end();
+  }
   if (req.method === 'POST') {
     try {
       const { fullName, email, phone, password } = req.body;
