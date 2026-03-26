@@ -51,7 +51,7 @@ export default function AdminCenters() {
   const [toast, setToast]           = useState({ text: '', type: '' });
   const navigate = useNavigate();
 
-  const API_URL = `http://${window.location.hostname}:5000/api`;
+  const API_URL = 'https://eco-track-iota-nine.vercel.app/api';
   const token   = localStorage.getItem('token');
   const userRaw = localStorage.getItem('user');
   const user    = userRaw ? JSON.parse(userRaw) : null;

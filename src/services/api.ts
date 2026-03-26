@@ -1,4 +1,4 @@
-const API_URL = `http://${window.location.hostname}:5000/api`;
+const API_URL = 'https://eco-track-iota-nine.vercel.app/api';
 
 // Helper function to get auth token
 const getToken = () => localStorage.getItem('token');
