@@ -1,97 +1,58 @@
 [
   {
-    "id": "6ddaec3e-0b25-4347-9448-e649190c393e",
-    "fullName": "Sharon Wanjiku",
-    "email": "wanjikusharon004@gmail.com",
-    "phone": "+254710895411",
-    "password": "$2b$10$GLiwNCLUk6eDqxlGcLAq0.mcUqXnFjBqJIjv6BJbgdpdrdYxL7Wjq",
-    "role": "admin",
-    "rewardPoints": 8,
-    "createdAt": "2026-03-17T10:56:32.649Z",
+    "id": "293eb508-88f3-48ce-91e0-20bd2282b64c",
+    "fullName": "Anne Mackenzie",
+    "email": "annemackenzie430@gmail.com",
+    "phone": "+254712848062",
+    "password": "$2b$10$GXYrok85/6ClNeKB4wCdB.yLPr8umtFtvhnWzEyb/Hv.icztGSFZm",
+    "role": "user",
+    "rewardPoints": 4,
+    "isVerified": true,
+    "verificationToken": null,
+    "createdAt": "2026-03-29T12:34:09.599Z",
     "recyclingHistory": [
       {
-        "id": "8931a92a-29f8-478c-b825-e435542fabf4",
-        "wasteType": "glass",
+        "id": "6ea618c0-cd5a-4d31-853f-8000351c8949",
+        "wasteType": "paper",
         "quantity": 0.3,
         "centerId": "rc1",
         "pointsEarned": 3,
-        "date": "2026-03-17T11:02:48.311Z"
+        "date": "2026-03-29T12:39:16.543Z"
       },
       {
-        "id": "6ec41bbf-a2d0-497e-a301-6e68254c7fbb",
+        "id": "3f4f7ef2-6e34-49c4-b503-e59914cdeaae",
         "wasteType": "glass",
-        "quantity": 0.2,
+        "quantity": 0.1,
         "centerId": "rc3",
-        "pointsEarned": 2,
-        "date": "2026-03-17T11:11:52.055Z"
-      },
-      {
-        "id": "1d36a847-4b5a-400f-bb38-a5368e2c56ff",
-        "wasteType": "metal",
-        "quantity": 0.3,
-        "centerId": "rc5",
-        "pointsEarned": 3,
-        "date": "2026-03-17T11:20:17.663Z"
+        "pointsEarned": 1,
+        "date": "2026-03-29T12:39:34.126Z"
       }
     ]
   },
   {
-    "id": "61e92954-4ac2-4ff8-a8bc-59901cabd727",
-    "fullName": "Anne Nduta",
-    "email": "ndutaanne975@gmail.com",
-    "phone": "+254710895411",
-    "password": "$2b$10$0Wr9hR2Mz6FzsGxQi.40T.usGpMvjgir5WuHn1ts/RzjKVJTbXaAq",
-    "role": "user",
-    "rewardPoints": 3,
-    "createdAt": "2026-03-18T05:13:26.772Z",
-    "recyclingHistory": [
-      {
-        "id": "a2d64dfa-6a97-4015-8e95-85991fd43a45",
-        "wasteType": "metal",
-        "quantity": 0.3,
-        "centerId": "rc3",
-        "pointsEarned": 3,
-        "date": "2026-03-18T16:37:17.562Z"
-      }
-    ]
-  },
-  {
-    "id": "85a8af3a-c2f0-42d2-99fd-ee1887379610",
-    "fullName": "Sharon Wachira",
-    "email": "sharonwachira386@gmail.com",
-    "phone": "+25471489541",
-    "password": "$2b$10$YJRnzKWOEneEQDkNjLQc.OZPauTTnYPYpo6F..BzoGHQLUIQfSQXW",
+    "id": "2eea7246-483a-49a1-aa92-1a745c8e06f5",
+    "fullName": "Sharon Wanjiku",
+    "email": "wanjikusharon004@gmail.com",
+    "phone": "wanjikusharon004@gmail.com",
+    "password": "$2b$10$Lgo2y3xLKSAtCRTAL7E3wOv8nb6pEhLbzhqlsEjgGeBnUtPJQ3LT6",
     "role": "user",
     "rewardPoints": 0,
-    "createdAt": "2026-03-18T16:54:52.669Z",
+    "isVerified": true,
+    "verificationToken": null,
+    "createdAt": "2026-03-29T12:50:32.911Z",
     "recyclingHistory": []
   },
   {
-    "id": "0e9256b2-00ec-4337-be0f-77a449615e6f",
-    "fullName": "Anne Nduta",
-    "email": "annenduta975@gmail.com",
-    "phone": "0712848062",
-    "password": "$2b$10$h/es3cnJ.n7NC8bGq7OQ9e54/0bU2Y2jHxvdDQdyVuJBe..nIjdx2",
-    "role": "user",
-    "rewardPoints": 8,
-    "createdAt": "2026-03-24T12:24:21.486Z",
-    "recyclingHistory": [
-      {
-        "id": "61a15bc5-e73d-4799-8959-4bf2681dd7b3",
-        "wasteType": "glass",
-        "quantity": 0.5,
-        "centerId": "rc3",
-        "pointsEarned": 5,
-        "date": "2026-03-24T12:24:56.999Z"
-      },
-      {
-        "id": "a8a3e11c-ff40-4ce4-b92e-afa7f8207bac",
-        "wasteType": "metal",
-        "quantity": 0.3,
-        "centerId": "rc4",
-        "pointsEarned": 3,
-        "date": "2026-03-24T12:25:12.346Z"
-      }
-    ]
+    "id": "admin-001",
+    "fullName": "EcoTrack Admin",
+    "email": "ecotrack026@gmail.com",
+    "phone": "+254 712 345 678",
+    "password": "$2b$10$lhjI43DElwX/LXkzLvPVbu6Yve3yssKD49LebDmKPcNGjn5Mj63Ru",
+    "role": "admin",
+    "rewardPoints": 0,
+    "isVerified": true,
+    "verificationToken": null,
+    "createdAt": "2026-03-29T12:34:09.599Z",
+    "recyclingHistory": []
   }
 ]

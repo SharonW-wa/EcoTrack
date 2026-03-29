@@ -1,12 +1,64 @@
-require('dotenv').config();
-const express = require('express');
-const cors = require('cors');
-const bodyParser = require('body-parser');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { v4: uuidv4 } = require('uuid');
-const fs = require('fs');
-const path = require('path');
+import dotenv from 'dotenv';
+dotenv.config();
+import express from 'express';
+import cors from 'cors';
+import bodyParser from 'body-parser';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
+import fs from 'node:fs';
+import path from 'node:path';
+import nodemailer from 'nodemailer';
+
+// ==================== EMAIL SETUP ====================
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+});
+
+async function sendVerificationEmail(email, fullName, token) {
+  const verifyUrl = `${process.env.BASE_URL}/api/auth/verify-email/${token}`;
+  await transporter.sendMail({
+    from: `"EcoTrack Kenya" <${process.env.EMAIL_USER}>`,
+    to: email,
+    subject: '✅ Verify Your EcoTrack Account',
+    html: `
+      <div style="font-family:Arial; max-width:600px; margin:auto; padding:30px; border:1px solid #e0e0e0; border-radius:10px;">
+        <div style="text-align:center; background:#16a34a; padding:20px; border-radius:8px 8px 0 0;">
+          <h1 style="color:white; margin:0;">🌿 EcoTrack Kenya</h1>
+        </div>
+        <div style="padding:30px;">
+          <h2 style="color:#333;">Welcome, ${fullName}!</h2>
+          <p style="color:#555; font-size:16px; line-height:1.6;">
+            Thank you for joining EcoTrack — Kenya's waste management platform.
+            Please verify your email address to activate your account.
+          </p>
+          <div style="text-align:center; margin:30px 0;">
+            <a href="${verifyUrl}"
+              style="background-color:#16a34a; color:white; padding:14px 32px;
+                     text-decoration:none; border-radius:6px; font-size:16px; font-weight:bold;">
+              ✅ Verify My Email
+            </a>
+          </div>
+          <p style="color:#888; font-size:13px;">
+            This link expires in 24 hours. If you did not create an account, please ignore this email.
+          </p>
+        </div>
+        <div style="background:#f9f9f9; padding:15px; border-radius:0 0 8px 8px; text-align:center;">
+          <p style="color:#aaa; font-size:12px; margin:0;">
+            © 2025 EcoTrack Kenya. Making Kenya cleaner, one recycle at a time. 🌍
+          </p>
+        </div>
+      </div>
+    `,
+  });
+}
+
+// ==================== APP SETUP ====================
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -36,7 +88,7 @@ app.get('/api', (req, res) => {
 });
 
 // Data directory
-const DATA_DIR = path.join(__dirname, 'data');
+const DATA_DIR = path.join(import.meta.dirname, 'data');
 if (!fs.existsSync(DATA_DIR)) {
   fs.mkdirSync(DATA_DIR, { recursive: true });
 }
@@ -53,12 +105,10 @@ const DB_FILES = {
 
 // Initialize database files with default data
 function initializeDatabase() {
-  // Users
   if (!fs.existsSync(DB_FILES.users)) {
     fs.writeFileSync(DB_FILES.users, JSON.stringify([], null, 2));
   }
 
-  // Recycling Centers (Kenya-based)
   if (!fs.existsSync(DB_FILES.recyclingCenters)) {
     const defaultCenters = [
       {
@@ -120,17 +170,14 @@ function initializeDatabase() {
     fs.writeFileSync(DB_FILES.recyclingCenters, JSON.stringify(defaultCenters, null, 2));
   }
 
-  // Feedback
   if (!fs.existsSync(DB_FILES.feedback)) {
     fs.writeFileSync(DB_FILES.feedback, JSON.stringify([], null, 2));
   }
 
-  // Rewards
   if (!fs.existsSync(DB_FILES.rewards)) {
     fs.writeFileSync(DB_FILES.rewards, JSON.stringify([], null, 2));
   }
 
-  // Eco Quotes
   if (!fs.existsSync(DB_FILES.ecoQuotes)) {
     const defaultQuotes = [
       { id: 'q1', quote: "The Earth does not belong to us. We belong to the Earth.", author: "Chief Seattle" },
@@ -147,7 +194,6 @@ function initializeDatabase() {
     fs.writeFileSync(DB_FILES.ecoQuotes, JSON.stringify(defaultQuotes, null, 2));
   }
 
-  // Waste Categories
   if (!fs.existsSync(DB_FILES.wasteCategories)) {
     const defaultCategories = [
       {
@@ -226,7 +272,6 @@ function writeDB(file, data) {
 
 // ==================== AUTH MIDDLEWARE ====================
 
-// User authentication middleware
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -244,7 +289,6 @@ const authenticateToken = (req, res, next) => {
   }
 };
 
-// Admin authentication middleware
 const authenticateAdmin = (req, res, next) => {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
@@ -274,21 +318,19 @@ initializeDatabase();
 
 // ==================== AUTH ROUTES ====================
 
-// Register
+// Register - NOW WITH EMAIL VERIFICATION
 app.post('/api/auth/register', async (req, res) => {
   try {
     const { fullName, email, phone, password } = req.body;
     const users = readDB(DB_FILES.users);
 
-    // Check if user exists
     if (users.find(u => u.email === email)) {
       return res.status(400).json({ message: 'User already exists with this email' });
     }
 
-    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
+    const verificationToken = uuidv4();
 
-    // Create user
     const newUser = {
       id: uuidv4(),
       fullName,
@@ -297,6 +339,8 @@ app.post('/api/auth/register', async (req, res) => {
       password: hashedPassword,
       role: 'user',
       rewardPoints: 0,
+      isVerified: false,
+      verificationToken,
       createdAt: new Date().toISOString(),
       recyclingHistory: []
     };
@@ -304,30 +348,58 @@ app.post('/api/auth/register', async (req, res) => {
     users.push(newUser);
     writeDB(DB_FILES.users, users);
 
-    // Generate token
-    const token = jwt.sign(
-      { userId: newUser.id, email: newUser.email },
-      JWT_SECRET,
-      { expiresIn: '24h' }
-    );
+    // Send verification email
+    await sendVerificationEmail(email, fullName, verificationToken);
 
     res.status(201).json({
-      message: 'User registered successfully',
-      token,
-      user: {
-        id: newUser.id,
-        fullName: newUser.fullName,
-        email: newUser.email,
-        phone: newUser.phone,
-        rewardPoints: newUser.rewardPoints
-      }
+      message: 'Registration successful! Please check your email to verify your account before logging in.',
     });
   } catch (error) {
+    console.error('Registration error:', error);
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Login
+// Verify Email Route
+app.get('/api/auth/verify-email/:token', (req, res) => {
+  try {
+    const { token } = req.params;
+    const users = readDB(DB_FILES.users);
+    const userIndex = users.findIndex(u => u.verificationToken === token);
+
+    if (userIndex === -1) {
+      return res.status(400).send(`
+        <div style="font-family:Arial; text-align:center; padding:50px;">
+          <h1 style="color:red;">❌ Invalid or Expired Link</h1>
+          <p>This verification link is invalid or has already been used.</p>
+        </div>
+      `);
+    }
+
+    users[userIndex].isVerified = true;
+    users[userIndex].verificationToken = null;
+    writeDB(DB_FILES.users, users);
+
+    res.send(`
+      <div style="font-family:Arial; text-align:center; padding:50px; max-width:500px; margin:auto;">
+        <div style="background:#16a34a; padding:20px; border-radius:8px; margin-bottom:20px;">
+          <h1 style="color:white; margin:0;">🌿 EcoTrack Kenya</h1>
+        </div>
+        <h2 style="color:#16a34a;">✅ Email Verified Successfully!</h2>
+        <p style="color:#555;">Your EcoTrack account is now active. You can now log in.</p>
+        <a href="http://localhost:5173/login"
+           style="display:inline-block; margin-top:20px; background:#16a34a; color:white;
+                  padding:12px 28px; border-radius:6px; text-decoration:none; font-size:16px;">
+          Go to Login
+        </a>
+      </div>
+    `);
+  } catch (error) {
+    res.status(500).send('Server error during verification.');
+  }
+});
+
+// Login - BLOCKS UNVERIFIED USERS
 app.post('/api/auth/login', async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -336,6 +408,13 @@ app.post('/api/auth/login', async (req, res) => {
     const user = users.find(u => u.email === email);
     if (!user) {
       return res.status(400).json({ message: 'Invalid email or password' });
+    }
+
+    // Block login if email not verified
+    if (!user.isVerified) {
+      return res.status(403).json({
+        message: 'Please verify your email before logging in. Check your inbox for the verification link.'
+      });
     }
 
     const validPassword = await bcrypt.compare(password, user.password);
@@ -392,7 +471,6 @@ app.get('/api/auth/me', authenticateToken, (req, res) => {
 
 // ==================== RECYCLING CENTERS ROUTES ====================
 
-// Get all recycling centers
 app.get('/api/recycling-centers', (req, res) => {
   try {
     const centers = readDB(DB_FILES.recyclingCenters);
@@ -402,7 +480,6 @@ app.get('/api/recycling-centers', (req, res) => {
   }
 });
 
-// Get nearby recycling centers
 app.get('/api/recycling-centers/nearby', (req, res) => {
   try {
     const { lat, lng, radius = 50 } = req.query;
@@ -432,7 +509,6 @@ app.get('/api/recycling-centers/nearby', (req, res) => {
 
 // ==================== ADMIN ROUTES ====================
 
-// Add a new recycling center
 app.post('/api/admin/centers', authenticateAdmin, (req, res) => {
   try {
     const centers = readDB(DB_FILES.recyclingCenters);
@@ -445,13 +521,11 @@ app.post('/api/admin/centers', authenticateAdmin, (req, res) => {
   }
 });
 
-// Update a recycling center
 app.put('/api/admin/centers/:id', authenticateAdmin, (req, res) => {
   try {
     const centers = readDB(DB_FILES.recyclingCenters);
     const index = centers.findIndex(c => c.id === req.params.id);
     if (index === -1) return res.status(404).json({ message: 'Center not found' });
-
     centers[index] = { ...centers[index], ...req.body };
     writeDB(DB_FILES.recyclingCenters, centers);
     res.json(centers[index]);
@@ -460,7 +534,6 @@ app.put('/api/admin/centers/:id', authenticateAdmin, (req, res) => {
   }
 });
 
-// Delete a recycling center
 app.delete('/api/admin/centers/:id', authenticateAdmin, (req, res) => {
   try {
     let centers = readDB(DB_FILES.recyclingCenters);
@@ -474,7 +547,6 @@ app.delete('/api/admin/centers/:id', authenticateAdmin, (req, res) => {
 
 // ==================== WASTE CATEGORIES ROUTES ====================
 
-// Get all waste categories
 app.get('/api/waste-categories', (req, res) => {
   try {
     const categories = readDB(DB_FILES.wasteCategories);
@@ -486,7 +558,6 @@ app.get('/api/waste-categories', (req, res) => {
 
 // ==================== ECO QUOTES ROUTES ====================
 
-// Get all eco quotes
 app.get('/api/eco-quotes', (req, res) => {
   try {
     const quotes = readDB(DB_FILES.ecoQuotes);
@@ -496,7 +567,6 @@ app.get('/api/eco-quotes', (req, res) => {
   }
 });
 
-// Get random eco quote
 app.get('/api/eco-quotes/random', (req, res) => {
   try {
     const quotes = readDB(DB_FILES.ecoQuotes);
@@ -509,13 +579,11 @@ app.get('/api/eco-quotes/random', (req, res) => {
 
 // ==================== FEEDBACK ROUTES ====================
 
-// Submit feedback
 app.post('/api/feedback', authenticateToken, (req, res) => {
   try {
     const { type, message, rating } = req.body;
     const feedback = readDB(DB_FILES.feedback);
     const users = readDB(DB_FILES.users);
-    
     const user = users.find(u => u.id === req.user.userId);
 
     const newFeedback = {
@@ -530,14 +598,12 @@ app.post('/api/feedback', authenticateToken, (req, res) => {
 
     feedback.push(newFeedback);
     writeDB(DB_FILES.feedback, feedback);
-
     res.status(201).json({ message: 'Feedback submitted successfully' });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });
   }
 });
 
-// Get all feedback
 app.get('/api/feedback', (req, res) => {
   try {
     const feedback = readDB(DB_FILES.feedback);
@@ -549,7 +615,6 @@ app.get('/api/feedback', (req, res) => {
 
 // ==================== REWARDS ROUTES ====================
 
-// Get user rewards
 app.get('/api/rewards', authenticateToken, (req, res) => {
   try {
     const rewards = readDB(DB_FILES.rewards);
@@ -560,7 +625,6 @@ app.get('/api/rewards', authenticateToken, (req, res) => {
   }
 });
 
-// Add recycling activity and earn points
 app.post('/api/rewards/recycle', authenticateToken, (req, res) => {
   try {
     const { wasteType, quantity, centerId } = req.body;
@@ -573,7 +637,6 @@ app.post('/api/rewards/recycle', authenticateToken, (req, res) => {
     }
 
     const pointsEarned = Math.round(quantity * 10);
-
     users[userIndex].rewardPoints += pointsEarned;
     
     const recyclingActivity = {
@@ -589,7 +652,6 @@ app.post('/api/rewards/recycle', authenticateToken, (req, res) => {
       users[userIndex].recyclingHistory = [];
     }
     users[userIndex].recyclingHistory.push(recyclingActivity);
-    
     writeDB(DB_FILES.users, users);
 
     const newReward = {
@@ -616,7 +678,6 @@ app.post('/api/rewards/recycle', authenticateToken, (req, res) => {
   }
 });
 
-// Redeem points
 app.post('/api/rewards/redeem', authenticateToken, (req, res) => {
   try {
     const { points, rewardType } = req.body;
@@ -661,7 +722,6 @@ app.post('/api/rewards/redeem', authenticateToken, (req, res) => {
 
 // ==================== LEADERBOARD ROUTES ====================
 
-// Get leaderboard
 app.get('/api/leaderboard', (req, res) => {
   try {
     const users = readDB(DB_FILES.users);
@@ -683,7 +743,6 @@ app.get('/api/leaderboard', (req, res) => {
 
 // ==================== STATS ROUTES ====================
 
-// Get system statistics
 app.get('/api/stats', (req, res) => {
   try {
     const users = readDB(DB_FILES.users);
@@ -731,5 +790,3 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`Data directory: ${DATA_DIR}`);
   console.log(`=================================`);
 });
-
-module.exports = app;

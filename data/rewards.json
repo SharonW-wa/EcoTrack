@@ -52,5 +52,23 @@
     "type": "earned",
     "description": "Recycled 0.3kg of metal",
     "createdAt": "2026-03-24T12:25:12.641Z"
+  },
+  {
+    "id": "54ad3810-f3b2-4126-b1b6-bf1861b079b3",
+    "userId": "293eb508-88f3-48ce-91e0-20bd2282b64c",
+    "activityId": "6ea618c0-cd5a-4d31-853f-8000351c8949",
+    "points": 3,
+    "type": "earned",
+    "description": "Recycled 0.3kg of paper",
+    "createdAt": "2026-03-29T12:39:16.544Z"
+  },
+  {
+    "id": "508f1e16-0ad9-4889-9636-f0788404c990",
+    "userId": "293eb508-88f3-48ce-91e0-20bd2282b64c",
+    "activityId": "3f4f7ef2-6e34-49c4-b503-e59914cdeaae",
+    "points": 1,
+    "type": "earned",
+    "description": "Recycled 0.1kg of glass",
+    "createdAt": "2026-03-29T12:39:34.127Z"
   }
 ]

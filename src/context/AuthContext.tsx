@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
 import { toast } from 'sonner';
 
-const API_URL = 'https://eco-track-iota-nine.vercel.app/api';
+const API_URL = 'http://localhost:5000/api';
 
 interface User {
   id: string;

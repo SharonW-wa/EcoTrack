@@ -133,7 +133,7 @@ export default function Footer() {
               </li>
               <li className="flex items-center text-green-100 text-sm">
                 <Mail className="w-5 h-5 mr-2 flex-shrink-0" />
-                <span>info@ecotrack.co.ke</span>
+                <span>ecotrack026@gmail.com</span>
               </li>
             </ul>
           </div>
