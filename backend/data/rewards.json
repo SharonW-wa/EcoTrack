@@ -70,5 +70,14 @@
     "type": "earned",
     "description": "Recycled 0.1kg of glass",
     "createdAt": "2026-03-29T12:39:34.127Z"
+  },
+  {
+    "id": "44b58849-37c8-4f40-9688-393e3565b2bf",
+    "userId": "2eea7246-483a-49a1-aa92-1a745c8e06f5",
+    "activityId": "c27db84c-0117-41d9-9101-45e1e472e525",
+    "points": 2,
+    "type": "earned",
+    "description": "Recycled 0.2kg of metal",
+    "createdAt": "2026-03-31T11:36:05.068Z"
   }
 ]

@@ -81,12 +81,12 @@ export const feedbackAPI = {
 
 // Rewards APIs
 export const rewardsAPI = {
-  getAll: () => fetchAPI('/rewards'),
+  getAll: (userId: string | number) => fetchAPI(`/rewards?userId=${userId}`),
   
-  recordRecycling: (wasteType: string, quantity: number, centerId: string) =>
+  recordRecycling: (wasteType: string, quantity: number, centerId: string, userId: string | number) =>
     fetchAPI('/rewards/recycle', {
       method: 'POST',
-      body: JSON.stringify({ wasteType, quantity, centerId })
+      body: JSON.stringify({ wasteType, quantity, centerId, userId })
     }),
   
   redeemPoints: (points: number, rewardType: string) =>

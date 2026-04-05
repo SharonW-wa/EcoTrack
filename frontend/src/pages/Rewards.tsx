@@ -66,23 +66,23 @@ export default function Rewards() {
   const wasteTypes = ['plastic', 'paper', 'glass', 'metal', 'organic'];
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [centersData, rewardsData] = await Promise.all([
-          centersAPI.getAll(),
-          rewardsAPI.getAll()
-        ]);
-        setCenters(centersData);
-        setRewards(rewardsData);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const fetchData = async () => {
+    try {
+      const [centersData, rewardsData] = await Promise.all([
+        centersAPI.getAll(),
+        rewardsAPI.getAll(user?.id || '')  // ← pass userId
+      ]);
+      setCenters(centersData);
+      setRewards(rewardsData.rewards || rewardsData); // handle object or array
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    fetchData();
-  }, []);
+  if (user?.id) fetchData(); // ← only fetch when user is loaded
+}, [user?.id]); // ← depend on user.id
 
   const handleRecordRecycling = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,17 +94,18 @@ export default function Rewards() {
 
     try {
       const result = await rewardsAPI.recordRecycling(
-        wasteType,
-        parseFloat(quantity),
-        centerId
-      );
+         wasteType,
+         parseFloat(quantity),
+         centerId,
+         user?.id || ''  // ← add userId
+        );
       
       toast.success(`Earned ${result.pointsEarned} points!`);
       await refreshUser();
       
       // Refresh rewards history
-      const rewardsData = await rewardsAPI.getAll();
-      setRewards(rewardsData);
+      const rewardsData = await rewardsAPI.getAll(user?.id || '');
+setRewards(rewardsData.rewards || rewardsData);
       
       // Reset form
       setWasteType('');
@@ -140,8 +141,8 @@ export default function Rewards() {
       await refreshUser();
       
       // Refresh rewards history
-      const rewardsData = await rewardsAPI.getAll();
-      setRewards(rewardsData);
+      const rewardsData = await rewardsAPI.getAll(user?.id || '');
+      setRewards(rewardsData.rewards || rewardsData);
       
       setSelectedReward('');
       setShowRedeemForm(false);
