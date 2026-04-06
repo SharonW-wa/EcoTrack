@@ -29,6 +29,28 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// ==================== ADMIN MIDDLEWARE ====================
+
+const isAdmin = async (req, res, next) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: 'No token provided' });
+        }
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, JWT_SECRET);
+
+        const [rows] = await db.query('SELECT role FROM users WHERE id = ?', [decoded.userId]);
+        if (rows.length === 0 || rows[0].role !== 'admin') {
+            return res.status(403).json({ message: 'Admin access required' });
+        }
+        req.userId = decoded.userId;
+        next();
+    } catch (error) {
+        res.status(401).json({ message: 'Invalid token' });
+    }
+};
+
 // ==================== AUTHENTICATION ROUTES ====================
 
 app.get('/api/auth/me', async (req, res) => {
@@ -42,7 +64,7 @@ app.get('/api/auth/me', async (req, res) => {
         const decoded = jwt.verify(token, JWT_SECRET);
 
         const [rows] = await db.query(
-            'SELECT id, fullName, email, rewardPoints FROM users WHERE id = ?',
+            'SELECT id, fullName, email, rewardPoints, role FROM users WHERE id = ?',
             [decoded.userId]
         );
 
@@ -75,8 +97,8 @@ app.post('/api/auth/register', async (req, res) => {
         const tokenExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 
         await db.query(
-            'INSERT INTO users (id, fullName, email, phone, password, rewardPoints, isVerified, verificationToken, tokenExpiry) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-            [userId, fullName, email, phone || '', hashedPassword, 0, false, verificationToken, tokenExpiry]
+            'INSERT INTO users (id, fullName, email, phone, password, rewardPoints, isVerified, verificationToken, tokenExpiry, role) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [userId, fullName, email, phone || '', hashedPassword, 0, false, verificationToken, tokenExpiry, 'user']
         );
 
         const verifyLink = `${BASE_URL}/api/auth/verify-email?token=${verificationToken}`;
@@ -176,7 +198,13 @@ app.post('/api/auth/login', async (req, res) => {
         const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '24h' });
         res.json({
             token,
-            user: { id: user.id, fullName: user.fullName, email: user.email, rewardPoints: user.rewardPoints }
+            user: {
+                id: user.id,
+                fullName: user.fullName,
+                email: user.email,
+                rewardPoints: user.rewardPoints,
+                role: user.role
+            }
         });
     } catch (error) {
         res.status(500).json({ message: 'Login error' });
@@ -199,6 +227,53 @@ app.get('/api/recycling-centers', async (req, res) => {
         res.json(centers);
     } catch (error) {
         res.status(500).json({ message: 'Error fetching centers' });
+    }
+});
+
+// ==================== ADMIN ROUTES ====================
+
+app.post('/api/admin/centers', isAdmin, async (req, res) => {
+    try {
+        const { name, address, latitude, longitude, phone, email, acceptedWaste, operatingHours } = req.body;
+        const id = 'rc' + Date.now();
+
+        await db.query(
+            'INSERT INTO recycling_centers (id, name, address, latitude, longitude, phone, email, acceptedWaste, operatingHours) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [id, name, address, latitude, longitude, phone, email, JSON.stringify(acceptedWaste), operatingHours]
+        );
+
+        res.status(201).json({ success: true, message: 'Center added successfully' });
+    } catch (error) {
+        console.error("❌ ADMIN ADD CENTER ERROR:", error.message);
+        res.status(500).json({ message: 'Error adding center', detail: error.message });
+    }
+});
+
+app.put('/api/admin/centers/:id', isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { name, address, latitude, longitude, phone, email, acceptedWaste, operatingHours } = req.body;
+
+        await db.query(
+            'UPDATE recycling_centers SET name=?, address=?, latitude=?, longitude=?, phone=?, email=?, acceptedWaste=?, operatingHours=? WHERE id=?',
+            [name, address, latitude, longitude, phone, email, JSON.stringify(acceptedWaste), operatingHours, id]
+        );
+
+        res.json({ success: true, message: 'Center updated successfully' });
+    } catch (error) {
+        console.error("❌ ADMIN UPDATE CENTER ERROR:", error.message);
+        res.status(500).json({ message: 'Error updating center', detail: error.message });
+    }
+});
+
+app.delete('/api/admin/centers/:id', isAdmin, async (req, res) => {
+    try {
+        const { id } = req.params;
+        await db.query('DELETE FROM recycling_centers WHERE id = ?', [id]);
+        res.json({ success: true, message: 'Center deleted successfully' });
+    } catch (error) {
+        console.error("❌ ADMIN DELETE CENTER ERROR:", error.message);
+        res.status(500).json({ message: 'Error deleting center', detail: error.message });
     }
 });
 
