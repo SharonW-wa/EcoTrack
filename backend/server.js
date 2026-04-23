@@ -401,9 +401,24 @@ app.post('/api/feedback', async (req, res) => {
 
 app.get('/api/stats', async (req, res) => {
     try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return res.status(401).json({ message: 'No token provided' });
+        }
+
+        const token = authHeader.split(' ')[1];
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const userId = decoded.userId;
+
+        console.log('Stats userId:', userId);
+
         const [users] = await db.query('SELECT COUNT(*) as count FROM users');
-        const [activities] = await db.query('SELECT COUNT(*) as count FROM activities');
-        const [quantity] = await db.query('SELECT SUM(quantity) as total FROM activities');
+        const [activities] = await db.query(
+            'SELECT COUNT(*) as count FROM activities WHERE userId = ?', [userId]
+        );
+        const [quantity] = await db.query(
+            'SELECT SUM(quantity) as total FROM activities WHERE userId = ?', [userId]
+        );
 
         res.json({
             totalUsers: users[0].count,
@@ -411,6 +426,7 @@ app.get('/api/stats', async (req, res) => {
             totalWasteRecycled: quantity[0].total || 0
         });
     } catch (error) {
+        console.error('Stats error:', error.message);
         res.status(500).json({ message: 'Error fetching stats' });
     }
 });
@@ -450,6 +466,57 @@ app.get('/api/leaderboard', async (req, res) => {
     } catch (error) {
         res.json([]);
     }
+});
+
+// ==================== ADMIN STATS ====================
+app.get('/api/admin/stats', isAdmin, async (req, res) => {
+  try {
+    const [users] = await db.query('SELECT COUNT(*) as count FROM users');
+    const [activities] = await db.query('SELECT COUNT(*) as count FROM activities');
+    const [quantity] = await db.query('SELECT SUM(quantity) as total FROM activities');
+    const [centers] = await db.query('SELECT COUNT(*) as count FROM recycling_centers');
+    const [feedbackCount] = await db.query('SELECT COUNT(*) as count FROM feedback');
+    const [points] = await db.query('SELECT SUM(rewardPoints) as total FROM users');
+
+    res.json({
+      totalUsers: users[0].count,
+      totalActivities: activities[0].count,
+      totalWasteRecycled: quantity[0].total || 0,
+      totalCenters: centers[0].count,
+      totalFeedback: feedbackCount[0].count,
+      totalPoints: points[0].total || 0,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching admin stats' });
+  }
+});
+
+// ==================== ADMIN USERS ====================
+app.get('/api/admin/users', isAdmin, async (req, res) => {
+  try {
+    const [rows] = await db.query(
+      'SELECT id, fullName, email, rewardPoints, role, isVerified FROM users ORDER BY rewardPoints DESC'
+    );
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching users' });
+  }
+});
+
+// ==================== ADMIN ACTIVITIES ====================
+app.get('/api/admin/activities', isAdmin, async (req, res) => {
+  try {
+    const limit = req.query.limit ? parseInt(req.query.limit) : 100;
+    const [rows] = await db.query(
+      `SELECT a.*, u.fullName FROM activities a
+       LEFT JOIN users u ON a.userId = u.id
+       ORDER BY a.date DESC LIMIT ?`,
+      [limit]
+    );
+    res.json(rows);
+  } catch (error) {
+    res.status(500).json({ message: 'Error fetching activities' });
+  }
 });
 
 // ==================== SERVER START ====================

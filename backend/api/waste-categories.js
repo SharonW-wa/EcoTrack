@@ -1,5 +1,4 @@
-const fs = require('fs');
-const path = require('path');
+const db = require('../db');
 
 function setCORS(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -7,16 +6,7 @@ function setCORS(res) {
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 }
 
-function readDB(file) {
-  try {
-    const data = fs.readFileSync(file, 'utf8');
-    return JSON.parse(data);
-  } catch (error) {
-    return [];
-  }
-}
-
-export default function handler(req, res) {
+module.exports = async function handler(req, res) {
   setCORS(res);
 
   if (req.method === 'OPTIONS') {
@@ -25,7 +15,7 @@ export default function handler(req, res) {
 
   if (req.method === 'GET') {
     try {
-      const categories = readDB(path.join(process.cwd(), 'data', 'waste-categories.json'));
+      const [categories] = await db.query('SELECT * FROM waste_categories');
       res.status(200).json(categories);
     } catch (error) {
       res.status(500).json({ message: 'Server error', error: error.message });
@@ -34,4 +24,4 @@ export default function handler(req, res) {
     res.setHeader('Allow', ['GET']);
     res.status(405).end(`Method ${req.method} Not Allowed`);
   }
-}
+};

@@ -6,25 +6,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useAuth } from '@/context/AuthContext';
-import { quotesAPI, authAPI } from '@/services/api';
-import {
-  Leaf,
-  MapPin,
-  Gift,
-  Recycle,
-  TrendingUp,
-  Award,
-  Calendar,
-  ArrowRight,
-  Target,
-  Users
-} from 'lucide-react';
-
-interface EcoQuote {
-  id: string;
-  quote: string;
-  author: string;
-}
+import { Leaf, MapPin, Gift, Recycle, TrendingUp, Award, Calendar, ArrowRight, Target, Users } from 'lucide-react';
+import EcoQuote from '@/components/EcoQuote';
+import { authAPI, rewardsAPI } from '@/services/api';
 
 interface LeaderboardUser {
   id: string;
@@ -35,29 +19,31 @@ interface LeaderboardUser {
 
 export default function Dashboard() {
   const { user, refreshUser } = useAuth();
-  const [quote, setQuote] = useState<EcoQuote | null>(null);
   const [leaderboard, setLeaderboard] = useState<LeaderboardUser[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await refreshUser();
-        const [quoteData, leaderboardData] = await Promise.all([
-          quotesAPI.getRandom(),
-          authAPI.getLeaderboard()
-        ]);
-        setQuote(quoteData);
-        setLeaderboard(leaderboardData);
-      } catch (error) {
-        console.error('Error fetching dashboard data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
+ const [activities, setActivities] = useState<any[]>([]);
 
-    fetchData();
-  }, []);
+useEffect(() => {
+  const fetchData = async () => {
+    try {
+      await refreshUser();
+      const leaderboardData = await authAPI.getLeaderboard();
+      setLeaderboard(leaderboardData);
+
+      // Fetch user's activities
+      if (user?.id) {
+        const rewardsData = await rewardsAPI.getAll(user.id);
+        setActivities(rewardsData.rewards || []);
+      }
+    } catch (error) {
+      console.error('Error fetching dashboard data:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchData();
+}, []);
 
   const getNextLevelPoints = (points: number) => {
     const levels = [0, 100, 250, 500, 1000, 2000, 5000];
@@ -81,8 +67,7 @@ export default function Dashboard() {
   const nextLevelPoints = getNextLevelPoints(userPoints);
   const currentLevel = getLevel(userPoints);
   const progress = Math.min((userPoints / nextLevelPoints) * 100, 100);
-
-  const recentActivity = user?.recyclingHistory?.slice(-5).reverse() || [];
+  const recentActivity = activities.slice(0, 5);
 
   if (loading) {
     return (
@@ -95,101 +80,54 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
+
         {/* Welcome Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
-        >
-          <h1 className="text-3xl font-bold text-gray-900">
-            Welcome back, {user?.fullName?.split(' ')[0]}! 👋
-          </h1>
-          <p className="text-gray-600 mt-1">
-            Here's your recycling journey overview
-          </p>
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-4">
+          <h1 className="text-3xl font-bold text-gray-900">Welcome back, {user?.fullName?.split(' ')[0]}! 👋</h1>
+          <p className="text-gray-600 mt-1">Here's your recycling journey overview</p>
         </motion.div>
+
+        {/* ECO QUOTE */}
+        <EcoQuote />
 
         {/* Stats Grid */}
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}>
             <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-green-100 text-sm">Total Points</p>
-                    <p className="text-3xl font-bold">{userPoints}</p>
-                  </div>
-                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                    <Gift className="w-6 h-6" />
-                  </div>
+                  <div><p className="text-green-100 text-sm">Total Points</p><p className="text-3xl font-bold">{userPoints}</p></div>
+                  <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center"><Gift className="w-6 h-6" /></div>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-500 text-sm">Recycling Activities</p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {user?.recyclingHistory?.length || 0}
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center">
-                    <Recycle className="w-6 h-6 text-teal-600" />
-                  </div>
+                  <div><p className="text-gray-500 text-sm">Recycling Activities</p><p className="text-3xl font-bold text-gray-900">{activities.length}</p></div>
+                  <div className="w-12 h-12 bg-teal-100 rounded-full flex items-center justify-center"><Recycle className="w-6 h-6 text-teal-600" /></div>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-500 text-sm">Current Level</p>
-                    <p className="text-xl font-bold text-gray-900">{currentLevel.name}</p>
-                  </div>
-                  <div className={`w-12 h-12 ${currentLevel.color} rounded-full flex items-center justify-center`}>
-                    <Award className="w-6 h-6 text-white" />
-                  </div>
+                  <div><p className="text-gray-500 text-sm">Current Level</p><p className="text-xl font-bold text-gray-900">{currentLevel.name}</p></div>
+                  <div className={`w-12 h-12 ${currentLevel.color} rounded-full flex items-center justify-center`}><Award className="w-6 h-6 text-white" /></div>
                 </div>
               </CardContent>
             </Card>
           </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
             <Card>
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-gray-500 text-sm">Total Recycled</p>
-                    <p className="text-3xl font-bold text-gray-900">
-                      {user?.recyclingHistory?.reduce((sum, h) => sum + h.quantity, 0).toFixed(1) || 0}kg
-                    </p>
-                  </div>
-                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                    <TrendingUp className="w-6 h-6 text-blue-600" />
-                  </div>
+                  <div><p className="text-gray-500 text-sm">Total Recycled</p><p className="text-3xl font-bold text-gray-900">{activities.reduce((sum, a) => {const match = a.description?.match(/[\d.]+/); return sum + (match ? parseFloat(match[0]) : 0);}, 0).toFixed(1)}kg</p></div>
+                  <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"><TrendingUp className="w-6 h-6 text-blue-600" /></div>
                 </div>
               </CardContent>
             </Card>
@@ -199,82 +137,46 @@ export default function Dashboard() {
         <div className="grid lg:grid-cols-3 gap-8">
           {/* Main Content */}
           <div className="lg:col-span-2 space-y-8">
+
             {/* Level Progress */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.5 }}>
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Target className="w-5 h-5 mr-2 text-green-600" />
-                    Level Progress
-                  </CardTitle>
+                  <CardTitle className="flex items-center"><Target className="w-5 h-5 mr-2 text-green-600" />Level Progress</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-sm font-medium text-gray-700">
-                      {currentLevel.name}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      {userPoints} / {nextLevelPoints} points
-                    </span>
+                    <span className="text-sm font-medium text-gray-700">{currentLevel.name}</span>
+                    <span className="text-sm text-gray-500">{userPoints} / {nextLevelPoints} points</span>
                   </div>
                   <Progress value={progress} className="h-3" />
-                  <p className="text-sm text-gray-500 mt-2">
-                    {nextLevelPoints - userPoints} more points to reach the next level!
-                  </p>
+                  <p className="text-sm text-gray-500 mt-2">{nextLevelPoints - userPoints} more points to reach the next level!</p>
                 </CardContent>
               </Card>
             </motion.div>
 
             {/* Recent Activity */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="flex items-center">
-                    <Calendar className="w-5 h-5 mr-2 text-green-600" />
-                    Recent Activity
-                  </CardTitle>
+                  <CardTitle className="flex items-center"><Calendar className="w-5 h-5 mr-2 text-green-600" />Recent Activity</CardTitle>
                   <Link to="/rewards">
-                    <Button variant="ghost" size="sm" className="text-green-600">
-                      View All <ArrowRight className="w-4 h-4 ml-1" />
-                    </Button>
+                    <Button variant="ghost" size="sm" className="text-green-600">View All <ArrowRight className="w-4 h-4 ml-1" /></Button>
                   </Link>
                 </CardHeader>
                 <CardContent>
                   {recentActivity.length > 0 ? (
                     <div className="space-y-4">
                       {recentActivity.map((activity) => (
-                        <div
-                          key={activity.id}
-                          className="flex items-center justify-between p-4 bg-gray-50 rounded-lg"
-                        >
+                        <div key={activity.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                           <div className="flex items-center space-x-3">
-                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
-                              <Recycle className="w-5 h-5 text-green-600" />
-                            </div>
+                            <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center"><Recycle className="w-5 h-5 text-green-600" /></div>
                             <div>
-                              <p className="font-medium text-gray-900">
-                                Recycled {activity.quantity}kg of {activity.wasteType}
-                              </p>
-                              <p className="text-sm text-gray-500">
-                                {new Date(activity.date).toLocaleDateString('en-US', {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric'
-                                })}
-                              </p>
+                              <p className="font-medium text-gray-900">{activity.description}</p>
+                              <p className="text-sm text-gray-500">{new Date(activity.createdAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                             </div>
                           </div>
-                          <Badge className="bg-green-100 text-green-700">
-                            +{activity.pointsEarned} pts
-                          </Badge>
+                          <Badge className="bg-green-100 text-green-700">+{activity.points} pts</Badge>
                         </div>
                       ))}
                     </div>
@@ -283,9 +185,7 @@ export default function Dashboard() {
                       <Recycle className="w-12 h-12 text-gray-300 mx-auto mb-3" />
                       <p className="text-gray-500">No recycling activity yet</p>
                       <Link to="/recycling-centers">
-                        <Button className="mt-4 bg-green-600 hover:bg-green-700">
-                          Find Recycling Centers
-                        </Button>
+                        <Button className="mt-4 bg-green-600 hover:bg-green-700">Find Recycling Centers</Button>
                       </Link>
                     </div>
                   )}
@@ -294,33 +194,24 @@ export default function Dashboard() {
             </motion.div>
 
             {/* Quick Actions */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.7 }}>
               <Card>
-                <CardHeader>
-                  <CardTitle>Quick Actions</CardTitle>
-                </CardHeader>
+                <CardHeader><CardTitle>Quick Actions</CardTitle></CardHeader>
                 <CardContent>
                   <div className="grid sm:grid-cols-3 gap-4">
                     <Link to="/recycling-centers">
                       <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center">
-                        <MapPin className="w-6 h-6 mb-2 text-blue-600" />
-                        <span className="text-sm">Find Centers</span>
+                        <MapPin className="w-6 h-6 mb-2 text-blue-600" /><span className="text-sm">Find Centers</span>
                       </Button>
                     </Link>
                     <Link to="/rewards">
                       <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center">
-                        <Gift className="w-6 h-6 mb-2 text-purple-600" />
-                        <span className="text-sm">Redeem Points</span>
+                        <Gift className="w-6 h-6 mb-2 text-purple-600" /><span className="text-sm">Redeem Points</span>
                       </Button>
                     </Link>
                     <Link to="/waste-categories">
                       <Button variant="outline" className="w-full h-auto py-4 flex flex-col items-center">
-                        <Leaf className="w-6 h-6 mb-2 text-green-600" />
-                        <span className="text-sm">Waste Guide</span>
+                        <Leaf className="w-6 h-6 mb-2 text-green-600" /><span className="text-sm">Waste Guide</span>
                       </Button>
                     </Link>
                   </div>
@@ -329,59 +220,27 @@ export default function Dashboard() {
             </motion.div>
           </div>
 
-          {/* Sidebar */}
+          {/* Sidebar — Leaderboard */}
           <div className="space-y-8">
-            {/* Daily Quote */}
-            {quote && (
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.8 }}
-              >
-                <Card className="bg-gradient-to-br from-green-500 to-emerald-600 text-white">
-                  <CardContent className="p-6">
-                    <Leaf className="w-8 h-8 mb-4 opacity-50" />
-                    <p className="text-lg italic mb-3">"{quote.quote}"</p>
-                    <p className="text-sm text-green-100">— {quote.author}</p>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            )}
-
-            {/* Leaderboard */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.8 }}>
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Users className="w-5 h-5 mr-2 text-green-600" />
-                    Top Recyclers
-                  </CardTitle>
+                  <CardTitle className="flex items-center"><Users className="w-5 h-5 mr-2 text-green-600" />Top Recyclers</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     {leaderboard.slice(0, 5).map((user, index) => (
-                      <div
-                        key={user.id}
-                        className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                      >
+                      <div key={user.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center space-x-3">
                           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold ${
                             index === 0 ? 'bg-yellow-100 text-yellow-700' :
                             index === 1 ? 'bg-gray-100 text-gray-700' :
                             index === 2 ? 'bg-orange-100 text-orange-700' :
                             'bg-green-100 text-green-700'
-                          }`}>
-                            {index + 1}
-                          </div>
+                          }`}>{index + 1}</div>
                           <span className="font-medium text-gray-900">{user.fullName}</span>
                         </div>
-                        <span className="text-sm font-semibold text-green-600">
-                          {user.rewardPoints} pts
-                        </span>
+                        <span className="text-sm font-semibold text-green-600">{user.rewardPoints} pts</span>
                       </div>
                     ))}
                   </div>
@@ -390,6 +249,7 @@ export default function Dashboard() {
             </motion.div>
           </div>
         </div>
+
       </div>
     </div>
   );

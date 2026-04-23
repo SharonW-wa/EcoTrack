@@ -35,3 +35,77 @@
     @apply bg-background text-foreground;
   }
 }
+.eco-quote-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border-left: 4px solid #16a34a;
+  border-radius: 0 12px 12px 0;
+  padding: 18px 22px;
+  margin: 20px 0 28px 0;
+  box-shadow: 0 2px 12px rgba(22, 163, 74, 0.08);
+  position: relative;
+  overflow: hidden;
+}
+
+.eco-quote-banner::after {
+  content: "🌱";
+  position: absolute;
+  right: 16px;
+  bottom: -6px;
+  font-size: 3.5rem;
+  opacity: 0.06;
+  pointer-events: none;
+  user-select: none;
+}
+
+.eco-quote-leaf {
+  font-size: 1.4rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.eco-quote-body {
+  flex: 1;
+}
+
+.eco-quote-text {
+  font-size: 0.97rem;
+  font-style: italic;
+  color: #166534;
+  line-height: 1.65;
+  margin: 0 0 8px 0;
+  font-weight: 500;
+}
+
+.eco-quote-attribution {
+  font-size: 0.82rem;
+  color: #4b7c57;
+}
+
+.eco-quote-dash {
+  color: #16a34a;
+  font-weight: 700;
+}
+
+.eco-quote-author {
+  font-weight: 700;
+  color: #15803d;
+}
+
+.eco-quote-role {
+  font-weight: 400;
+  color: #6b7280;
+  font-style: italic;
+}
+
+@media (max-width: 480px) {
+  .eco-quote-banner {
+    padding: 14px 16px;
+    gap: 10px;
+  }
+  .eco-quote-text {
+    font-size: 0.91rem;
+  }
+}

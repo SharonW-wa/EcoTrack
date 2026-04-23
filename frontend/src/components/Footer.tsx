@@ -145,7 +145,7 @@ export default function Footer() {
             {currentYear} EcoTrack. All rights reserved.
           </p>
           <p className="text-green-100 text-sm mt-2 md:mt-0">
-            Promoting Sustainable Development Goals 11 & 12
+            Promoting Sustainable Development Goals 11, 12 & 13 in Kenya
           </p>
         </div>
       </div>
