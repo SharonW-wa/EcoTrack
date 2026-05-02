@@ -525,6 +525,6 @@ app.listen(PORT, '0.0.0.0', () => {
     console.log("=========================================");
     console.log("🌿 EcoTrack Server Status: ONLINE");
     console.log(`🔌 Port: ${PORT}`);
-    console.log(`🌐 Endpoint: http://192.168.0.103:${PORT}`);
+    console.log(`🌐 Endpoint: http://192.168.0.101:${PORT}`);
     console.log("=========================================");
 });
