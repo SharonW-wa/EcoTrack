@@ -518,7 +518,17 @@ app.get('/api/admin/activities', isAdmin, async (req, res) => {
     res.status(500).json({ message: 'Error fetching activities' });
   }
 });
-
+app.get("/api/test-db", async (req, res) => {
+  try {
+    const [rows] = await db.query("SELECT DATABASE() as db, COUNT(*) as centers FROM recycling_centers");
+    res.json({ 
+      connected_to: rows[0].db,
+      center_count: rows[0].centers 
+    });
+  } catch (error) {
+    res.json({ error: error.message });
+  }
+});
 // ==================== SERVER START ====================
 app.listen(PORT, '0.0.0.0', () => {
     console.log("🔗 EcoTrack is now connected to MySQL!");
