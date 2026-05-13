@@ -11,7 +11,9 @@
     "preview": "vite preview",
     "server": "node server.js",
     "start": "npm run server & npm run dev",
-    "start:host": "npm run server & npm run dev:host"
+    "start:host": "npm run server & npm run dev:host",
+    "predeploy": "npm run build",
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

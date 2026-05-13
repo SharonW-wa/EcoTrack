@@ -23,6 +23,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
+    family: 4, //Force IPv4
     auth: {
         user: process.env.EMAIL_USER || 'ecotrak026@gmail.com',
         pass: process.env.EMAIL_PASS
