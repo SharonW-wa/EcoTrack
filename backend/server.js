@@ -438,7 +438,8 @@ app.get('/api/waste-categories', async (req, res) => {
     try {
         const [rows] = await db.query('SELECT * FROM waste_categories');
         const categories = rows.map(cat => ({
-            ...cat,
+            id: cat.category_id,
+            ...cat, 
             examples: typeof cat.examples === 'string'
                 ? JSON.parse(cat.examples)
                 : cat.examples || [],
