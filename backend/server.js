@@ -415,25 +415,13 @@ app.post('/api/feedback', async (req, res) => {
 
 app.get('/api/stats', async (req, res) => {
     try {
-        const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            return res.status(401).json({ message: 'No token provided' });
-        }
-
-        const token = authHeader.split(' ')[1];
-        const decoded = jwt.verify(token, JWT_SECRET);
-        const userId = decoded.userId;
-
-        console.log('Stats userId:', userId);
-
         const [users] = await db.query('SELECT COUNT(*) as count FROM users');
         const [activities] = await db.query(
-            'SELECT COUNT(*) as count FROM activities WHERE userId = ?', [userId]
+            'SELECT COUNT(*) as count FROM activities' 
         );
         const [quantity] = await db.query(
-            'SELECT SUM(quantity) as total FROM activities WHERE userId = ?', [userId]
-        );
-
+            'SELECT SUM(quantity) as total FROM activities'
+        ); 
         res.json({
             totalUsers: users[0].count,
             totalActivities: activities[0].count,
