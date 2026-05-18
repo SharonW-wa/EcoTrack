@@ -22,7 +22,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // ==================== NODEMAILER SETUP ====================
 
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 465,
+    secure: true,
     family: 4, //Force IPv4
     auth: {
         user: process.env.EMAIL_USER || 'ecotrak026@gmail.com',
