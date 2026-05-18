@@ -103,47 +103,46 @@ app.post('/api/auth/register', async (req, res) => {
 
         const verifyLink = `${BASE_URL}/api/auth/verify-email?token=${verificationToken}`;
 
-        // Get fresh access token from Google
-        const { token: accessToken } = await oauth2Client.getAccessToken();
+        // Send verification email via Gmail API (HTTPS port 443 — works on Render free tier)
+        const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
-        const transporter = nodemailer.createTransport({
-            service: 'gmail',
-            auth: {
-                type: 'OAuth2',
-                user: process.env.EMAIL_USER,
-                clientId: process.env.OAUTH_CLIENT_ID,
-                clientSecret: process.env.OAUTH_CLIENT_SECRET,
-                refreshToken: process.env.OAUTH_REFRESH_TOKEN,
-                accessToken
-            }
-        });
-
-        await transporter.sendMail({
-            from: '"EcoTrack" <ecotrak026@gmail.com>',
-            to: email,
-            subject: 'Verify your EcoTrack account',
-            html: `
-                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-                    <div style="background: linear-gradient(135deg, #16a34a, #059669); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
-                        <h1 style="color: white; margin: 0;">🌿 EcoTrack</h1>
-                        <p style="color: #d1fae5; margin: 5px 0 0;">Promoting sustainable waste management</p>
-                    </div>
-                    <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
-                        <h2 style="color: #1f2937;">Welcome, ${fullName}! 👋</h2>
-                        <p style="color: #4b5563;">Thank you for joining EcoTrack. Please verify your email address to activate your account.</p>
-                        <div style="text-align: center; margin: 30px 0;">
-                            <a href="${verifyLink}" 
-                               style="background: #16a34a; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
-                                ✅ Verify My Email
-                            </a>
-                        </div>
-                        <p style="color: #6b7280; font-size: 14px;">This link expires in 24 hours.</p>
-                        <p style="color: #6b7280; font-size: 14px;">If you didn't create an account, you can safely ignore this email.</p>
-                        <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-                        <p style="color: #9ca3af; font-size: 12px; text-align: center;">EcoTrack — Making Kenya cleaner and greener 🇰🇪</p>
-                    </div>
+        const emailLines = [
+            `From: "EcoTrack" <${process.env.EMAIL_USER}>`,
+            `To: ${email}`,
+            `Subject: Verify your EcoTrack account`,
+            `MIME-Version: 1.0`,
+            `Content-Type: text/html; charset=utf-8`,
+            ``,
+            `<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                <div style="background: linear-gradient(135deg, #16a34a, #059669); padding: 30px; text-align: center; border-radius: 10px 10px 0 0;">
+                    <h1 style="color: white; margin: 0;">🌿 EcoTrack</h1>
+                    <p style="color: #d1fae5; margin: 5px 0 0;">Promoting sustainable waste management</p>
                 </div>
-            `
+                <div style="background: #f9fafb; padding: 30px; border-radius: 0 0 10px 10px;">
+                    <h2 style="color: #1f2937;">Welcome, ${fullName}! 👋</h2>
+                    <p style="color: #4b5563;">Thank you for joining EcoTrack. Please verify your email address to activate your account.</p>
+                    <div style="text-align: center; margin: 30px 0;">
+                        <a href="${verifyLink}" style="background: #16a34a; color: white; padding: 14px 32px; border-radius: 8px; text-decoration: none; font-weight: bold; font-size: 16px;">
+                            ✅ Verify My Email
+                        </a>
+                    </div>
+                    <p style="color: #6b7280; font-size: 14px;">This link expires in 24 hours.</p>
+                    <p style="color: #6b7280; font-size: 14px;">If you didn't create an account, you can safely ignore this email.</p>
+                    <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
+                    <p style="color: #9ca3af; font-size: 12px; text-align: center;">EcoTrack — Making Kenya cleaner and greener 🇰🇪</p>
+                </div>
+            </div>`
+        ].join('\n');
+
+        const encodedMessage = Buffer.from(emailLines)
+            .toString('base64')
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '');
+
+        await gmail.users.messages.send({
+            userId: 'me',
+            requestBody: { raw: encodedMessage }
         });
 
         res.status(201).json({
