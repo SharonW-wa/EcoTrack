@@ -22,17 +22,14 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // ==================== NODEMAILER SETUP ====================
 
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
-    family: 4, //Force IPv4
+    service: 'gmail',
     auth: {
-        user: process.env.EMAIL_USER || 'ecotrak026@gmail.com',
-        pass: process.env.EMAIL_PASS
+        type: 'OAuth2',
+        user: process.env.EMAIL_USER,
+        clientId: process.env.OAUTH_CLIENT_ID,
+        clientSecret: process.env.OAUTH_CLIENT_SECRET,
+        refreshToken: process.env.OAUTH_REFRESH_TOKEN
     },
-    tls: {
-        rejectUnauthorized: false
-    }
 });
 
 // ==================== ADMIN MIDDLEWARE ====================
