@@ -27,15 +27,15 @@ export default function WasteCategories() {
   const getCategoryImage = (categoryName: string) => {
     const name = categoryName.toLowerCase();
     switch (name) {
-      case 'plastic': return '/images/plastic-icon.jpeg';
-      case 'paper': return '/images/paper-icon.jpeg';
-      case 'glass': return '/images/glass-icon.jpeg';
-      case 'metal': return '/images/metal-icon.jpeg';
-      case 'organic': return '/images/organic-icon.jpeg';
+      case 'plastic': return '/EcoTrack/images/plastic-icon.jpeg';
+      case 'paper': return '/EcoTrack/images/paper-icon.jpeg';
+      case 'glass': return '/EcoTrack/images/glass-icon.jpeg';
+      case 'metal': return '/EcoTrack/images/metal-icon.jpeg';
+      case 'organic': return '/EcoTrack/images/organic-icon.jpeg';
       case 'e-waste':
       case 'electronic':
-      case 'electronics': return '/images/e-waste-icon.jpeg';
-      default: return '/images/plastic-icon.jpg';
+      case 'electronics': return '/EcoTrack/images/e-waste-icon.jpeg';
+      default: return '/EcoTrack/images/plastic-icon.jpg';
     }
   };
 
