@@ -7,6 +7,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import nodemailer from 'nodemailer';
+import { google } from 'googleapis';
 import db from './db.js';
 
 const app = express();
@@ -21,16 +22,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 // ==================== NODEMAILER SETUP ====================
 
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        type: 'OAuth2',
-        user: process.env.EMAIL_USER,
-        clientId: process.env.OAUTH_CLIENT_ID,
-        clientSecret: process.env.OAUTH_CLIENT_SECRET,
-        refreshToken: process.env.OAUTH_REFRESH_TOKEN
-    },
-});
+const oauth2Client = new google.auth.OAuth2(
+    process.env.OAUTH_CLIENT_ID,
+    process.env.OAUTH_CLIENT_SECRET,
+    'https://developers.google.com/oauthplayground'
+);
+oauth2Client.setCredentials({ refresh_token: process.env.OAUTH_REFRESH_TOKEN });
 
 // ==================== ADMIN MIDDLEWARE ====================
 
@@ -105,6 +102,21 @@ app.post('/api/auth/register', async (req, res) => {
         );
 
         const verifyLink = `${BASE_URL}/api/auth/verify-email?token=${verificationToken}`;
+
+        // Get fresh access token from Google
+        const { token: accessToken } = await oauth2Client.getAccessToken();
+
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+                type: 'OAuth2',
+                user: process.env.EMAIL_USER,
+                clientId: process.env.OAUTH_CLIENT_ID,
+                clientSecret: process.env.OAUTH_CLIENT_SECRET,
+                refreshToken: process.env.OAUTH_REFRESH_TOKEN,
+                accessToken
+            }
+        });
 
         await transporter.sendMail({
             from: '"EcoTrack" <ecotrak026@gmail.com>',
@@ -441,7 +453,7 @@ app.get('/api/waste-categories', async (req, res) => {
         const [rows] = await db.query('SELECT * FROM waste_categories');
         const categories = rows.map(cat => ({
             id: cat.category_id,
-            ...cat, 
+            ...cat,
             examples: typeof cat.examples === 'string'
                 ? JSON.parse(cat.examples)
                 : cat.examples || [],
@@ -522,17 +534,19 @@ app.get('/api/admin/activities', isAdmin, async (req, res) => {
     res.status(500).json({ message: 'Error fetching activities' });
   }
 });
+
 app.get("/api/test-db", async (req, res) => {
   try {
     const [rows] = await db.query("SELECT DATABASE() as db, COUNT(*) as centers FROM recycling_centers");
-    res.json({ 
+    res.json({
       connected_to: rows[0].db,
-      center_count: rows[0].centers 
+      center_count: rows[0].centers
     });
   } catch (error) {
     res.json({ error: error.message });
   }
 });
+
 // ==================== SERVER START ====================
 app.listen(PORT, '0.0.0.0', () => {
     console.log("🔗 EcoTrack is now connected to MySQL!");
